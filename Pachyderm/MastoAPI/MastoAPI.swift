@@ -8,9 +8,6 @@
 import Foundation
 
 @Observable final class MastoAPI: Sendable {
-    // This class will handle all interactions with the Mastodon API.
-    // It will include methods for authentication, fetching posts, and more.
-    
     private(set) public var instanceDomain: String
     private(set) public var accessToken: String
     
@@ -28,12 +25,7 @@ import Foundation
     init(instanceDomain: String, accessToken: String) {
         self.instanceDomain = instanceDomain
         self.accessToken = accessToken
-        
-        DispatchQueue(label: "", qos: .background).async {
-            Task {
-                self.me = try? await self.getMyAccount()
-            }
-        }
+        self.login(instanceDomain: instanceDomain, accessToken: accessToken)
     }
     
     func login(instanceDomain: String, accessToken: String) {
@@ -42,7 +34,14 @@ import Foundation
         
         DispatchQueue(label: "", qos: .background).async {
             Task {
-                self.me = try? await self.getMyAccount()
+                do {
+                    let acc = try await self.me()
+                    await MainActor.run {
+                        self.me = acc
+                    }
+                } catch {
+                    print(error)
+                }
             }
         }
     }
@@ -51,10 +50,10 @@ import Foundation
         case home = "home"
         case federated = "public?remote=true"
         case local = "public?local=true"
-        // TODO: Intelligently support other timeline types such as Chuckya's Bubble timeline
+        case bubble = "public?bubble=true"
     }
     
-    @discardableResult func fetch(endpoint: String, method: String = "GET", parameters: [String: Any]? = nil, body: String? = nil) async throws -> Data {
+    @discardableResult func grab(endpoint: String, method: String = "GET", parameters: [String: Any]? = nil, body: String? = nil) async throws -> Data {
         var endpoint = endpoint
         if endpoint.hasPrefix("/") {
             endpoint = String(endpoint.dropFirst())
@@ -83,29 +82,33 @@ import Foundation
         return data
     }
     
-    func getMyAccount() async throws -> Account {
-        let res = try await self.fetch(endpoint: "/v1/accounts/verify_credentials")
+    func me() async throws -> Account {
+        let res = try await self.grab(endpoint: "/v1/accounts/verify_credentials")
         return try decoder.decode(Account.self, from: res)
     }
     
     
-    func fetchTimeline(type: TimelineType, after id: String?) async throws -> [Post] {
+    func timeline(type: TimelineType, after id: String?) async throws -> [Status] {
         var params: [String: Any]?
         
         if let id = id {
             params = ["max_id": id]
         }
         
-        let data = try await fetch(endpoint: "/v1/timelines/\(type.rawValue)", parameters: params)
-        let posts = try decoder.decode([Post].self, from: data)
-        return posts
+        let data = try await grab(endpoint: "/v1/timelines/\(type.rawValue)", parameters: params)
+        return try decoder.decode([Status].self, from: data)
     }
     
-    func fetchAccount(id: String) async throws -> Account {
-        let data = try await fetch(endpoint: "/v1/accounts/\(id)")
-        let account = try decoder.decode(Account.self, from: data)
-        return account
+    func account(id: String) async throws -> Account {
+        let data = try await grab(endpoint: "/v1/accounts/\(id)")
+        return try decoder.decode(Account.self, from: data)
     }
+    
+    func notifications() async throws -> [Notification] {
+        let data = try await grab(endpoint: "/v1/notifications")
+        return try decoder.decode([Notification].self, from: data)
+    }
+    
     
     enum AccountViewType: String {
         case `default` = "exclude_replies=true"
@@ -116,35 +119,34 @@ import Foundation
         }
     }
     
-    func fetchAccountPosts(for account: Account, view: AccountViewType, after: String? = nil) async throws -> [Post] {
+    func accountPosts(for account: Account, view: AccountViewType, after: String? = nil) async throws -> [Status] {
         var params: [String: Any] = view.dictValue
         
         if let after = after {
             params["max_id"] = after
         }
         
-        let data = try await fetch(endpoint: "/v1/accounts/\(account.id)/statuses", parameters: params)
-        let posts = try decoder.decode([Post].self, from: data)
+        let data = try await grab(endpoint: "/v1/accounts/\(account.id)/statuses", parameters: params)
+        let posts = try decoder.decode([Status].self, from: data)
         return posts
     }
     
-    @discardableResult func favourite(_ post: Post) async throws -> Post {
+    @discardableResult func favourite(_ post: Status) async throws -> Status {
         let endpoint = post.favourited == true ? "unfavourite" : "favourite"
-        let data = try await fetch(endpoint: "/v1/statuses/\(post.id)/\(endpoint)", method: "POST")
-        let newPost = try decoder.decode(Post.self, from: data)
-        return newPost
+        let data = try await grab(endpoint: "/v1/statuses/\(post.id)/\(endpoint)", method: "POST")
+        return try decoder.decode(Status.self, from: data)
     }
     
-    @discardableResult func reblog(_ post: Post) async throws -> Post {
+    @discardableResult func reblog(_ post: Status) async throws -> Status {
         let endpoint = post.reblogged == true ? "unreblog" : "reblog"
-        try await fetch(endpoint: "/v1/statuses/\(post.id)/\(endpoint)", method: "POST")
+        try await grab(endpoint: "/v1/statuses/\(post.id)/\(endpoint)", method: "POST")
         let newPost = post
         newPost.reblogged?.toggle()
         newPost.reblogsCount += 1
         return newPost
     }
     
-    class Post: Codable, Identifiable {
+    class Status: Codable, Identifiable {
         let id: String
         let createdAt: String?
         let inReplyToId: String?
@@ -169,20 +171,26 @@ import Foundation
         let localOnly: Bool?
         let content: String
         let filtered: [FilterResult]?
-        var reblog: Post?
+        var reblog: Status?
         let account: Account
         let mediaAttachments: [MediaAttachment]?
         let mentions: [Mention]?
         let tags: [Tag]?
         let emojis: [Emoji]?
         let reactions: [Reaction]?
-        let quote: Post?
+        let quote: QuoteStatus?
         let card: Card?
         let poll: Poll?
         let application: ApplicationInfo?
     }
     
-    struct Account: Codable, Identifiable {
+    // quotes are very broken
+    struct QuoteStatus: Codable, Identifiable, Hashable {
+        let id: String?
+        let content: String?
+    }
+    
+    struct Account: Codable, Identifiable, Hashable {
         let id: String
         let username: String
         let acct: String
@@ -212,7 +220,7 @@ import Foundation
         let roles: [Role]?
     }
     
-    struct MediaAttachment: Codable, Identifiable {
+    struct MediaAttachment: Codable, Identifiable, Hashable {
         let id: String
         let type: String // e.g., "image", "video", "gifv", "audio"
         let url: String
@@ -232,7 +240,7 @@ import Foundation
         let acct: String
     }
     
-    struct Tag: Codable {
+    struct Tag: Codable, Hashable {
         let name: String
         let url: String
     }
@@ -246,23 +254,23 @@ import Foundation
         var id: String { shortcode }
     }
     
-    struct Field: Codable {
+    struct Field: Codable, Hashable {
         let name: String
         let value: String
         let verifiedAt: String?
     }
 
-    struct ApplicationInfo: Codable {
+    struct ApplicationInfo: Codable, Hashable {
         let name: String
         let website: String?
     }
 
-    struct MediaFocus: Codable {
+    struct MediaFocus: Codable, Hashable {
         let x: Double
         let y: Double
     }
 
-    struct MediaSize: Codable {
+    struct MediaSize: Codable, Hashable {
         let width: Int?
         let height: Int?
         let size: String?
@@ -272,21 +280,21 @@ import Foundation
         let bitrate: Int?
     }
 
-    struct MediaMeta: Codable {
+    struct MediaMeta: Codable, Hashable {
         let original: MediaSize?
         let small: MediaSize?
         let focus: MediaFocus?
     }
     
     // New struct for Account roles
-    struct Role: Codable, Identifiable {
+    struct Role: Codable, Identifiable, Hashable {
         let id: String
         let name: String
         let color: String?
     }
 
     // New structs for Post fields
-    struct Filter: Codable, Identifiable {
+    struct Filter: Codable, Identifiable, Hashable {
         let id: String
         let title: String
         let context: [String]
@@ -296,13 +304,13 @@ import Foundation
         // let filterAction: String // e.g., "warn", "hide" - add if needed
     }
 
-    struct FilterResult: Codable {
+    struct FilterResult: Codable, Hashable {
         let filter: Filter
         let keywordMatches: [String]?
         let statusMatches: [String]?
     }
 
-    struct Reaction: Codable, Identifiable {
+    struct Reaction: Codable, Identifiable, Hashable {
         let name: String
         let count: Int
         let me: Bool?
@@ -311,10 +319,10 @@ import Foundation
 
         var id: String { name }
 
-        enum CodingKeys: String, CodingKey {
-            case name, count, me, url
-            case staticUrl = "static_url"
-        }
+//        enum CodingKeys: String, CodingKey {
+//            case name, count, me, url
+//            case staticUrl = "static_url"
+//        }
     }
     
     struct Card: Codable {
@@ -361,6 +369,22 @@ import Foundation
        let title: String
        let votesCount: Int?
     }
+    
+    struct Notification: Codable, Hashable {
+        let type: String
+        let status: Status
+        let account: Account
+    }
+}
+
+extension MastoAPI.Status: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    public static func == (lhs: MastoAPI.Status, rhs: MastoAPI.Status) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 extension MastoAPI.TimelineType {
@@ -369,6 +393,8 @@ extension MastoAPI.TimelineType {
         case .home: "Home"
         case .federated: "Federated"
         case .local: "Local"
+        case .bubble: "Bubble"
+        @unknown default: self.rawValue
         }
     }
 }

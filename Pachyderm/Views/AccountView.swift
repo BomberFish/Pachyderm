@@ -11,7 +11,7 @@ struct AccountView: View {
     @Environment(MastoAPI.self) private var api: MastoAPI
     public let initialAccount: MastoAPI.Account
     @State private var account: MastoAPI.Account
-    @State var posts: [MastoAPI.Post] = []
+    @State var posts: [MastoAPI.Status] = []
     @State var view: MastoAPI.AccountViewType = .default
     @State private var isLoadingMore = false
 
@@ -55,12 +55,12 @@ struct AccountView: View {
     func loadInitialData() async {
         isLoadingMore = true
         do {
-            let fetchedAccountDetails = try await api.fetchAccount(id: initialAccount.id)
+            let fetchedAccountDetails = try await api.account(id: initialAccount.id)
             await MainActor.run {
                 self.account = fetchedAccountDetails
             }
 
-            let fetchedPosts = try await api.fetchAccountPosts(for: initialAccount, view: view, after: nil)
+            let fetchedPosts = try await api.accountPosts(for: initialAccount, view: view, after: nil)
             await MainActor.run {
                 self.posts = fetchedPosts
             }
@@ -75,7 +75,7 @@ struct AccountView: View {
 
         isLoadingMore = true
         do {
-            let newPosts = try await api.fetchAccountPosts(for: account, view: view, after: lastPostId)
+            let newPosts = try await api.accountPosts(for: account, view: view, after: lastPostId)
             if !newPosts.isEmpty {
                 await MainActor.run {
                     posts.append(contentsOf: newPosts)
@@ -92,7 +92,7 @@ struct AccountView: View {
         isLoadingMore = true
         do {
 
-            let refreshedPosts = try await api.fetchAccountPosts(for: account, view: view, after: nil)
+            let refreshedPosts = try await api.accountPosts(for: account, view: view, after: nil)
             await MainActor.run {
                 self.posts = refreshedPosts
             }

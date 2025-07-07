@@ -10,7 +10,7 @@ import AVKit
 
 struct TimelineView: View {
     @State var type = MastoAPI.TimelineType.home
-    @State var posts: [MastoAPI.Post] = []
+    @State var posts: [MastoAPI.Status] = []
     @Environment(MastoAPI.self) private var api: MastoAPI
     @State private var isLoadingMore = false
 
@@ -45,15 +45,13 @@ struct TimelineView: View {
                         
                     }) {
                         Image(systemName: "square.and.pencil")
-                            .font(.title3)
+//                            .font(.title3)
                             .padding(5)
                             .offset(y:-2)
-                            .clipShape(Circle())
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .tint(.accent)
                     .frame(width: AvatarUIScale.regular.rawValue, height: AvatarUIScale.regular.rawValue)
-                    .clipShape(Circle())
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -78,7 +76,7 @@ struct TimelineView: View {
     func loadInitialPosts() async {
         do {
             isLoadingMore = true
-            let fetchedPosts = try await api.fetchTimeline(type: type, after: nil)
+            let fetchedPosts = try await api.timeline(type: type, after: nil)
             posts = fetchedPosts
             isLoadingMore = false
         } catch {
@@ -95,7 +93,7 @@ struct TimelineView: View {
         }
 
         do {
-            let newPosts = try await api.fetchTimeline(type: type, after: currentLastPostId)
+            let newPosts = try await api.timeline(type: type, after: currentLastPostId)
             if !newPosts.isEmpty {
                 posts.append(contentsOf: newPosts)
             }
@@ -113,7 +111,7 @@ struct TimelineView: View {
             await MainActor.run {
                  self.isLoadingMore = true
             }
-            let refreshedPosts = try await api.fetchTimeline(type: type, after: nil)
+            let refreshedPosts = try await api.timeline(type: type, after: nil)
             posts = refreshedPosts
         } catch {
             await UIApplication.shared.alertError(error)

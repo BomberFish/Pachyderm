@@ -5,9 +5,9 @@
 //  Created by Hariz Shirazi on 2023-02-04.
 //
 
-fileprivate let errorString = NSLocalizedString("Error", comment: "Title to display when displaying an error")
-fileprivate let okString = NSLocalizedString("OK", comment: "Default string to confirm an action")
-fileprivate let cancelString = NSLocalizedString("Cancel", comment: "Default string to cancel an action")
+nonisolated(unsafe) fileprivate let errorString = NSLocalizedString("Error", comment: "Title to display when displaying an error")
+nonisolated(unsafe) fileprivate let okString = NSLocalizedString("OK", comment: "Default string to confirm an action")
+nonisolated(unsafe) fileprivate let cancelString = NSLocalizedString("Cancel", comment: "Default string to cancel an action")
 
 #if canImport(UIKit)
 import UIKit

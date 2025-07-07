@@ -9,18 +9,18 @@ import SwiftUI
 import AVKit
 
 struct PostCell: View {
-    @Binding var post: MastoAPI.Post
+    @Binding var post: MastoAPI.Status
     let rebloggedAuthor: MastoAPI.Account?
     @Environment(MastoAPI.self) private var api: MastoAPI
     
     @State private var showFullContent = false
     
-    init(post: Binding<MastoAPI.Post>) {
+    init(post: Binding<MastoAPI.Status>) {
         if post.wrappedValue.reblog != nil {
             self._post = .init(get: {
-                post.wrappedValue.reblog!
+                post.wrappedValue.reblog ?? post.wrappedValue
             }, set: {
-                var updatedPost = post.wrappedValue
+                let updatedPost = post.wrappedValue
                 updatedPost.reblog = $0
                 post.wrappedValue = updatedPost
             })

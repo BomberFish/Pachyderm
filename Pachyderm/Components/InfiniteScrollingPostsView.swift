@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct InfiniteScrollingPostsView: View {
-    @Binding var posts: [MastoAPI.Post]
+    @Binding var posts: [MastoAPI.Status]
     @Binding var isLoadingMore: Bool
     let onLastItemAppeared: () async -> Void
     
     init(
-        posts: Binding<[MastoAPI.Post]>,
+        posts: Binding<[MastoAPI.Status]>,
         isLoadingMore: Binding<Bool>,
         onLastItemAppeared: @escaping () async -> Void
     ) {
@@ -21,13 +21,18 @@ struct InfiniteScrollingPostsView: View {
                 let postBinding = $posts[index]
 //                NavigationLink(destination: PostDetailView(post: postBinding)) {
                     PostCell(post: postBinding)
-                        .onAppear {
-                            if posts[index].id == posts.last?.id && !isLoadingMore {
-                                Task {
-                                    await onLastItemAppeared()
-                                }
-                            }
+//                        .onAppear {
+//                            if posts[index].id == posts.last?.id && !isLoadingMore {
+//                                Task {
+//                                    await onLastItemAppeared()
+//                                }
+//                            }
+//                        }
+                    .task(priority: .userInitiated) {
+                        if posts[index].id == posts.last?.id && !isLoadingMore {
+                            await onLastItemAppeared()
                         }
+                    }
 //                }
                 .padding(.vertical, 4)
                 if index < posts.count - 1 {

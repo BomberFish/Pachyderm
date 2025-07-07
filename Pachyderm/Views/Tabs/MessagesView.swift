@@ -15,6 +15,7 @@ struct MessagesView: View {
                         Text("Direct Messages")
                             .font(.title.weight(.semibold))
                             .fixedSize()
+                            .padding(.leading, 4)
                 }
                 .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .navigationBarTrailing) {

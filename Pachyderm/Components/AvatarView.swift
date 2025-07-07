@@ -54,24 +54,27 @@ struct AccountMenu: View {
         Menu {
             Menu(content: {
                 Text("todo: account switcher")
+                Button("Log Out", systemImage: "rectangle.portrait.and.arrow.right") {
+                    api.login(instanceDomain: "", accessToken: "")
+//                    exitApp()
+                }
             }, label: {
                 if let me = api.me {
-                    HStack {
-                        AvatarView(account: me, size: .small)
-                            .accessibilityLabel("Switch Account")
-                        VStack(alignment: .leading) {
-                            Text(me.displayName ?? String(me.acct.split(separator: "@").first ?? "Unknown"))
-                                .font(.headline)
-                            Text(me.acct)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                    Label(title: {Text(me.displayName ?? String(me.acct.split(separator: "@").first ?? "Unknown"))}, icon: {
+                        CachedAsyncImage(url: URL(string: me.avatar)) { image in
+                            image
+                                .resizable()
+                                .frame(width: 10, height: 10)
+                                .clipShape(Circle())
+                        } placeholder: {
+                            ProgressView()
                         }
-                    }
+                        .accessibilityLabel("Switch Account")
+                    })
                 } else {
                     Text("Loading")
                 }
             })
-//            Button("My Profile", systemImage: "person.crop.circle") {}
             if let me = api.me {
                 NavigationLink(destination: AccountView(initialAccount: me)) {
                     Label("My Profile", systemImage: "person.crop.circle")

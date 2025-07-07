@@ -7,12 +7,20 @@
   },
   "groups" : [
     {
-      "blur-material" : 0.5,
+      "blur-material" : 1,
       "layers" : [
         {
           "image-name" : "Group 2.svg",
           "name" : "Group 2",
-          "opacity" : 1,
+          "opacity-specializations" : [
+            {
+              "value" : 1
+            },
+            {
+              "appearance" : "tinted",
+              "value" : 1
+            }
+          ],
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
@@ -24,7 +32,15 @@
         {
           "image-name" : "Group.svg",
           "name" : "Group",
-          "opacity" : 1,
+          "opacity-specializations" : [
+            {
+              "value" : 1
+            },
+            {
+              "appearance" : "tinted",
+              "value" : 1
+            }
+          ],
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
@@ -35,10 +51,22 @@
         },
         {
           "image-name" : "Group 4.svg",
-          "name" : "Group 4"
+          "name" : "Group 4",
+          "opacity-specializations" : [
+            {
+              "appearance" : "tinted",
+              "value" : 1
+            }
+          ]
         }
       ],
       "lighting" : "individual",
+      "opacity-specializations" : [
+        {
+          "appearance" : "tinted",
+          "value" : 0.9
+        }
+      ],
       "position" : {
         "scale" : 0.87,
         "translation-in-points" : [
@@ -46,24 +74,14 @@
           40
         ]
       },
-      "shadow-specializations" : [
-        {
-          "value" : {
-            "kind" : "neutral",
-            "opacity" : 0.5
-          }
-        },
-        {
-          "appearance" : "dark",
-          "value" : {
-            "kind" : "layer-color",
-            "opacity" : 0.2
-          }
-        }
-      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
       "translucency" : {
         "enabled" : true,
-        "value" : 0.55
+        "value" : 0.8
       }
     }
   ],
