@@ -19,7 +19,7 @@ struct InfiniteScrollingPostsView: View {
         LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(Array(posts.indices), id: \.self) { index in
                 let postBinding = $posts[index]
-//                NavigationLink(destination: PostDetailView(post: postBinding)) {
+                NavigationLink(destination: PostDetailView(post: postBinding)) {
                     PostCell(post: postBinding)
 //                        .onAppear {
 //                            if posts[index].id == posts.last?.id && !isLoadingMore {
@@ -33,7 +33,7 @@ struct InfiniteScrollingPostsView: View {
                             await onLastItemAppeared()
                         }
                     }
-//                }
+                }
                 .padding(.vertical, 4)
                 if index < posts.count - 1 {
                     Divider()

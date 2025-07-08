@@ -146,6 +146,13 @@ import Foundation
         return newPost
     }
     
+    enum Visibility: String, Codable {
+        case `public` = "public"
+        case unlisted = "unlisted"
+        case `private` = "private"
+        case direct = "direct"
+    }
+    
     class Status: Codable, Identifiable {
         let id: String
         let createdAt: String?
@@ -153,7 +160,7 @@ import Foundation
         let inReplyToAccountId: String?
         let sensitive: Bool
         let spoilerText: String?
-        let visibility: String
+        let visibility: Visibility
         let language: String?
         let uri: String
         let url: String?
@@ -397,4 +404,28 @@ extension MastoAPI.TimelineType {
         @unknown default: self.rawValue
         }
     }
+}
+
+extension MastoAPI.Visibility {
+    var description: String {
+        switch self {
+        case .public: "Public"
+        case .unlisted: "Quiet Public"
+        case .private: "Followers Only"
+        case .direct: "Direct"
+        @unknown default: self.rawValue.capitalized
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .public: "network"
+        case .unlisted: "moon"
+        case .private: "lock"
+        case .direct: "envelope"
+        @unknown default: "eye"
+        }
+    }
+    
+    static var allCases = [Self.public, Self.unlisted, Self.private, Self.direct]
 }

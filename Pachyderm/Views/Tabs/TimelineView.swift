@@ -71,7 +71,7 @@ struct TimelineView: View {
                 await refreshPosts()
             }
         }
-        .fullScreenCover(isPresented: $showComposeSheet) {
+        .sheet(isPresented: $showComposeSheet) {
             ComposeView()
         }
     }
