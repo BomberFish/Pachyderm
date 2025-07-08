@@ -50,11 +50,17 @@ struct NotificationsView: View {
 struct NotificationItem: View {
     public var notification: MastoAPI.Notification
     var body: some View {
-        NavigationLink(destination: PostDetailView(post: .constant(notification.status))) {
+        if let st = notification.status {
+            NavigationLink(destination: PostDetailView(post: .constant(st))) {
+                VStack(alignment: .leading) {
+                    Text(notification.type.capitalized + " from @" + notification.account.username)
+                    PostCell(post: .constant(st))
+                        .allowsHitTesting(false)
+                }
+            }
+        } else {
             VStack(alignment: .leading) {
                 Text(notification.type.capitalized + " from @" + notification.account.username)
-                PostCell(post: .constant(notification.status))
-                    .allowsHitTesting(false)
             }
         }
     }

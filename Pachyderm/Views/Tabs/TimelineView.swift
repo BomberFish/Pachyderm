@@ -13,6 +13,7 @@ struct TimelineView: View {
     @State var posts: [MastoAPI.Status] = []
     @Environment(MastoAPI.self) private var api: MastoAPI
     @State private var isLoadingMore = false
+    @State private var showComposeSheet: Bool = false
 
     var body: some View {
         ScrollView {
@@ -42,10 +43,9 @@ struct TimelineView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        
+                        showComposeSheet = true
                     }) {
                         Image(systemName: "square.and.pencil")
-//                            .font(.title3)
                             .padding(5)
                             .offset(y:-2)
                     }
@@ -70,6 +70,9 @@ struct TimelineView: View {
             Task {
                 await refreshPosts()
             }
+        }
+        .fullScreenCover(isPresented: $showComposeSheet) {
+            ComposeView()
         }
     }
 

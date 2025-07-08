@@ -372,7 +372,7 @@ import Foundation
     
     struct Notification: Codable, Hashable {
         let type: String
-        let status: Status
+        let status: Status?
         let account: Account
     }
 }
