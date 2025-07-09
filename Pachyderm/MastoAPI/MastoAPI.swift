@@ -53,7 +53,7 @@ import Foundation
         case bubble = "public?bubble=true"
     }
     
-    @discardableResult func grab(endpoint: String, method: String = "GET", parameters: [String: Any]? = nil, body: String? = nil) async throws -> Data {
+    @discardableResult func grab(endpoint: String, method: String = "GET", parameters: [String: Any]? = nil, body: [String:Any]? = nil) async throws -> Data {
         var endpoint = endpoint
         if endpoint.hasPrefix("/") {
             endpoint = String(endpoint.dropFirst())
@@ -67,17 +67,18 @@ import Foundation
         guard let url = urlComponents?.url else {
             throw NSError(domain: "MastoAPIError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
         }
-        
+        print(url.absoluteString)
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         
         if let body = body {
-            request.httpBody = body.data(using: .utf8)
+            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         
-        let (data, _) = try await urlSession.data(for: request)
+        let (data, response) = try await urlSession.data(for: request)
+        print((response as? HTTPURLResponse)?.statusCode ?? 0)
         print(String(data: data, encoding: .utf8) ?? "\(data.count) bytes of data")
         return data
     }
@@ -85,6 +86,12 @@ import Foundation
     func me() async throws -> Account {
         let res = try await self.grab(endpoint: "/v1/accounts/verify_credentials")
         return try decoder.decode(Account.self, from: res)
+    }
+    
+    func post(status: String, visibility: MastoAPI.Visibility, mediaIds: [String] = []) async throws {
+        let body: [String: Any] = ["status": status, "media_ids": mediaIds, "visibility": visibility.rawValue]
+        let res = try await self.grab(endpoint: "/v1/statuses", method: "POST", parameters: nil, body: body)
+        print(res)
     }
     
     

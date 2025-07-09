@@ -2,7 +2,6 @@
 import Foundation
 import AuthenticationServices
 
-// Data structures for API responses
 struct AppRegistrationResponse: Codable {
     let clientId: String
     let clientSecret: String
@@ -21,7 +20,6 @@ struct TokenResponse: Codable {
     }
 }
 
-// Custom errors for the authentication process
 enum MastoAuthError: Error {
     case invalidURL
     case networkError(Error)
@@ -34,13 +32,11 @@ enum MastoAuthError: Error {
 }
 
 class MastoAuth {
-    // Shared constants for the authentication flow
-    static let redirectURI = "pachyderm://auth" // Must match Info.plist and server config
-    static let scopes = "read write follow profile push" // Desired OAuth scopes
+    static let redirectURI = "pachyderm://auth"
+    static let scopes = "read write follow profile push"
 
     private static let urlSession = URLSession(configuration: .default)
 
-    // Registers the application with the Mastodon instance
     static func registerApp(instanceDomain: String) async throws -> AppRegistrationResponse {
         guard let url = URL(string: "https://\(instanceDomain)/api/v1/apps") else {
             throw MastoAuthError.invalidURL
@@ -51,10 +47,10 @@ class MastoAuth {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         let body: [String: String] = [
-            "client_name": "Pachyderm", // Your app's name
+            "client_name": "Pachyderm",
             "redirect_uris": redirectURI,
             "scopes": scopes,
-            "website": "https://bomberfish.ca" // TODO: UPDATE TS NOW IT PMO!! 
+            "website": "https://github.com/BomberFish/Pachyderm"
         ]
         request.httpBody = try JSONEncoder().encode(body)
 
@@ -73,7 +69,6 @@ class MastoAuth {
         }
     }
 
-    // Exchanges the authorization code for an access token
     static func fetchToken(instanceDomain: String, clientId: String, clientSecret: String, authCode: String) async throws -> TokenResponse {
         guard let url = URL(string: "https://\(instanceDomain)/oauth/token") else {
             throw MastoAuthError.invalidURL
@@ -107,17 +102,14 @@ class MastoAuth {
     }
 }
 
-// Provides the presentation context for ASWebAuthenticationSession on iOS
 #if os(iOS)
 import UIKit
 
 class AuthContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return UIApplication.shared.firstWindow ?? ASPresentationAnchor() // Provide a fallback anchor
+        return UIApplication.shared.firstWindow ?? ASPresentationAnchor()
     }
 }
 #else
-// On macOS, a presentation context provider is not used in the same way,
-// but ASWebAuthenticationSession still works.
 class AuthContextProvider: NSObject {}
 #endif

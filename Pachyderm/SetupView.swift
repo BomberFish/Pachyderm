@@ -29,23 +29,30 @@ struct SetupView: View {
 
     var body: some View {
         VStack {
+            Text("Welcome to Pachyderm!")
+                .font(.title2.weight(.semibold))
+            Text("Enter the domain of your Mastodon instance here:")
             TextField("Instance Domain", text: $instanceDomain)
                 .disableAutocorrection(true)
-                .textFieldStyle(.roundedBorder)
+                .keyboardType(.webSearch)
+                .modifier(FancyInputViewModifier())
                 .padding()
 
-            Button("Login with Mastodon") {
+            Button("Login with Mastodon", systemImage: "person.badge.key") {
                 Task {
                     await startOAuthFlow()
                 }
             }
-            .padding()
+            .controlSize(.large)
+            .buttonStyle(.glassProminent)
+            .disabled(instanceDomain == "")
         }
         .alert("Error", isPresented: $showErrorAlert) {
             Button("OK") { }
         } message: {
             Text(errorMessage)
         }
+        .padding()
     }
 
     func startOAuthFlow() async {

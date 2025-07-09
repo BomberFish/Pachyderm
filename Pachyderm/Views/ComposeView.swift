@@ -46,20 +46,19 @@ struct ComposeView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button(action: ds.callAsFunction) {
-                            Image(systemName: "xmark")
-                        }
+                        Button("Cancel", systemImage: "xmark", action: ds.callAsFunction)
                         .clipShape(Circle())
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button(action: {
-                            do {
-                                throw "Not implemented yet"
-                            } catch {
-                                UIApplication.shared.alertError(error)
+                        Button("Post", systemImage: "paperplane") {
+                            Task {
+                                do {
+                                    try await api.post(status: text, visibility: visibility)
+                                } catch {
+                                    await UIApplication.shared.alertError(error)
+                                }
                             }
-                        }) {
-                            Image(systemName: "paperplane")
+                            ds()
                         }
                         .clipShape(Circle())
                         .buttonStyle(.glassProminent)
