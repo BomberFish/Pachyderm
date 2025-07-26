@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PerceptionCore
 
 enum AvatarUIScale: CGFloat {
     case xs = 24
@@ -51,52 +52,54 @@ struct AvatarView: View {
 struct AccountMenu: View {
     @Environment(MastoAPI.self) private var api: MastoAPI
     var body: some View {
-        Menu {
-            Menu(content: {
-                Text("todo: account switcher")
-                Button("Log Out", systemImage: "rectangle.portrait.and.arrow.right") {
-                    api.login(instanceDomain: "", accessToken: "")
-//                    exitApp()
-                }
-            }, label: {
+        WithPerceptionTracking {
+            Menu {
+                Menu(content: {
+                    Text("todo: account switcher")
+                    Button("Log Out", systemImage: "rectangle.portrait.and.arrow.right") {
+                        api.login(instanceDomain: "", accessToken: "")
+                        //                    exitApp()
+                    }
+                }, label: {
+                    if let me = api.me {
+                        Label(title: {Text(me.displayName ?? String(me.acct.split(separator: "@").first ?? "Unknown"))}, icon: {
+                            CachedAsyncImage(url: URL(string: me.avatar)) { image in
+                                image
+                                    .resizable()
+                                    .frame(width: 10, height: 10)
+                                    .clipShape(Circle())
+                            } placeholder: {
+                                ProgressView()
+                            }
+                            .accessibilityLabel("Switch Account")
+                        })
+                    } else {
+                        Text("Loading")
+                    }
+                })
                 if let me = api.me {
-                    Label(title: {Text(me.displayName ?? String(me.acct.split(separator: "@").first ?? "Unknown"))}, icon: {
-                        CachedAsyncImage(url: URL(string: me.avatar)) { image in
-                            image
-                                .resizable()
-                                .frame(width: 10, height: 10)
-                                .clipShape(Circle())
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .accessibilityLabel("Switch Account")
-                    })
-                } else {
-                    Text("Loading")
-                }
-            })
-            if let me = api.me {
-                NavigationLink(destination: AccountView(initialAccount: me)) {
-                    Label("My Profile", systemImage: "person.crop.circle")
-                }
-            }
-            Button("Settings", systemImage: "gear") {}
-        } label: {
-            Group {
-                if let me = api.me {
-                    AvatarView(account: me, size: .regular)
-                } else {
-                    ZStack {
-                        Rectangle()
-                            .fill(.clear)
-                            .frame(width: AvatarUIScale.regular.rawValue, height: AvatarUIScale.regular.rawValue)
-                            .controlSize(.regular)
-                            .glass()
-                        ProgressView()
+                    NavigationLink(destination: AccountView(initialAccount: me)) {
+                        Label("My Profile", systemImage: "person.crop.circle")
                     }
                 }
-            }
+                Button("Settings", systemImage: "gear") {}
+            } label: {
+                Group {
+                    if let me = api.me {
+                        AvatarView(account: me, size: .regular)
+                    } else {
+                        ZStack {
+                            Rectangle()
+                                .fill(.clear)
+                                .frame(width: AvatarUIScale.regular.rawValue, height: AvatarUIScale.regular.rawValue)
+                                .controlSize(.regular)
+                                .glass()
+                            ProgressView()
+                        }
+                    }
+                }
                 .accessibilityLabel("Account Menu")
+            }
         }
     }
 }

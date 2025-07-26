@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AuthenticationServices
+import PerceptionCore
 
 struct SetupView: View {
     @Binding public var instanceDomain: String
@@ -28,31 +29,33 @@ struct SetupView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Welcome to Pachyderm!")
-                .font(.title2.weight(.semibold))
-            Text("Enter the domain of your Mastodon instance here:")
-            TextField("Instance Domain", text: $instanceDomain)
-                .disableAutocorrection(true)
-                .keyboardType(.webSearch)
-                .modifier(FancyInputViewModifier())
-                .padding()
-
-            Button("Login with Mastodon", systemImage: "person.badge.key") {
-                Task {
-                    await startOAuthFlow()
+        WithPerceptionTracking {
+            VStack {
+                Text("Welcome to Pachyderm!")
+                    .font(.title2.weight(.semibold))
+                Text("Enter the domain of your Mastodon instance here:")
+                TextField("Instance Domain", text: $instanceDomain)
+                    .disableAutocorrection(true)
+                    .keyboardType(.webSearch)
+                    .modifier(FancyInputViewModifier())
+                    .padding()
+                
+                Button("Login with Mastodon", systemImage: "person.badge.key") {
+                    Task {
+                        await startOAuthFlow()
+                    }
                 }
+                .controlSize(.large)
+                .glassProminentButton()
+                .disabled(instanceDomain == "")
             }
-            .controlSize(.large)
-            .glassProminentButton()
-            .disabled(instanceDomain == "")
+            .alert("Error", isPresented: $showErrorAlert) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
+            .padding()
         }
-        .alert("Error", isPresented: $showErrorAlert) {
-            Button("OK") { }
-        } message: {
-            Text(errorMessage)
-        }
-        .padding()
     }
 
     func startOAuthFlow() async {
@@ -150,8 +153,8 @@ struct SetupView: View {
     }
 }
 
-#Preview {
-    @Previewable @State var baseURL: String = ""
-    @Previewable @State var accessToken: String = ""
-    SetupView(baseURL: $baseURL, accessToken: $accessToken)
-}
+//#Preview {
+//    @Previewable @State var baseURL: String = ""
+//    @Previewable @State var accessToken: String = ""
+//    SetupView(baseURL: $baseURL, accessToken: $accessToken)
+//}

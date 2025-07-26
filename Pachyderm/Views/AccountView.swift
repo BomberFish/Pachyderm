@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PerceptionCore
 
 struct AccountView: View {
     @Environment(MastoAPI.self) private var api: MastoAPI
@@ -21,33 +22,35 @@ struct AccountView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack {
-                AccountHeaderView(account: $account)
+        WithPerceptionTracking {
+            ScrollView {
+                VStack {
+                    AccountHeaderView(account: $account)
+                        .padding(.horizontal)
+                    
+                    Picker("View Type", selection: $view) {
+                        Text("Posts").tag(MastoAPI.AccountViewType.default)
+                        Text("Replies").tag(MastoAPI.AccountViewType.withReplies)
+                        Text("Media").tag(MastoAPI.AccountViewType.onlyMedia)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.bottom, 8)
                     .padding(.horizontal)
-
-                Picker("View Type", selection: $view) {
-                    Text("Posts").tag(MastoAPI.AccountViewType.default)
-                    Text("Replies").tag(MastoAPI.AccountViewType.withReplies)
-                    Text("Media").tag(MastoAPI.AccountViewType.onlyMedia)
                 }
-                .pickerStyle(.segmented)
-                .padding(.bottom, 8)
-                .padding(.horizontal)
+                
+                InfiniteScrollingPostsView(posts: $posts, isLoadingMore: $isLoadingMore, onLastItemAppeared: loadMorePosts)
             }
-
-            InfiniteScrollingPostsView(posts: $posts, isLoadingMore: $isLoadingMore, onLastItemAppeared: loadMorePosts)
-        }
-        .navigationTitle(account.displayName ?? account.username)
-        .task(priority: .userInitiated) {
-            await loadInitialData()
-        }
-        .refreshable {
-            await refreshPosts()
-        }
-        .onChange(of: view) {
-            Task {
+            .navigationTitle(account.displayName ?? account.username)
+            .task(priority: .userInitiated) {
+                await loadInitialData()
+            }
+            .refreshable {
                 await refreshPosts()
+            }
+            .onChange(of: view) {_ in
+                Task {
+                    await refreshPosts()
+                }
             }
         }
     }

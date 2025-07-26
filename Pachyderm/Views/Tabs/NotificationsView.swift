@@ -6,51 +6,54 @@
 //
 
 import SwiftUI
+import PerceptionCore
 
 struct NotificationsView: View {
     @State var notifications: [MastoAPI.Notification] = []
     @Environment(MastoAPI.self) private var api: MastoAPI
     var body: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(notifications, id: \.self) { notification in
-                    VStack {
-                        NotificationItem(notification: notification)
-                        if notification != notifications.last {
-                            Divider()
+        WithPerceptionTracking {
+            ScrollView {
+                LazyVStack {
+                    ForEach(notifications, id: \.self) { notification in
+                        VStack {
+                            NotificationItem(notification: notification)
+                            if notification != notifications.last {
+                                Divider()
+                            }
                         }
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
-        }
-        .toolbar {
-            if #available(iOS 19.0, *) {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Notifications")
-                        .font(.title.weight(.semibold))
-                        .fixedSize()
-                        .padding(.leading, 4)
+            .toolbar {
+                if #available(iOS 19.0, *) {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Text("Notifications")
+                            .font(.title.weight(.semibold))
+                            .fixedSize()
+                            .padding(.leading, 4)
+                    }
+                    .sharedBackgroundVisibility(.hidden)
+                } else {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Text("Notifications")
+                            .font(.title.weight(.semibold))
+                            .fixedSize()
+                            .padding(.leading, 4)
+                    }
                 }
-                .sharedBackgroundVisibility(.hidden)
-            } else {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Notifications")
-                        .font(.title.weight(.semibold))
-                        .fixedSize()
-                        .padding(.leading, 4)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    AccountMenu()
+                        .frame(width: AvatarUIScale.regular.rawValue, height:  AvatarUIScale.regular.rawValue)
                 }
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                AccountMenu()
-                    .frame(width: AvatarUIScale.regular.rawValue, height:  AvatarUIScale.regular.rawValue)
-            }
-        }
-        .task {
-            do {
-                notifications = try await api.notifications()
-            } catch {
-                await UIApplication.shared.alertError(error)
+            .task {
+                do {
+                    notifications = try await api.notifications()
+                } catch {
+                    await UIApplication.shared.alertError(error)
+                }
             }
         }
     }

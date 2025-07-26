@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVKit
+import PerceptionCore
 
 struct TimelineView: View {
     @State var type = MastoAPI.TimelineType.home
@@ -16,9 +17,10 @@ struct TimelineView: View {
     @State private var showComposeSheet: Bool = false
 
     var body: some View {
-        ScrollView {
-            InfiniteScrollingPostsView(posts: $posts, isLoadingMore: $isLoadingMore, onLastItemAppeared: loadMorePosts)
-        }
+        WithPerceptionTracking {
+            ScrollView {
+                InfiniteScrollingPostsView(posts: $posts, isLoadingMore: $isLoadingMore, onLastItemAppeared: loadMorePosts)
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Menu {
@@ -59,20 +61,21 @@ struct TimelineView: View {
                         .frame(width: AvatarUIScale.regular.rawValue, height:  AvatarUIScale.regular.rawValue)
                 }
             }
-        
-        .task(priority: .userInitiated) {
-            await loadInitialPosts()
-        }
-        .refreshable {
-            await refreshPosts()
-        }
-        .onChange(of: type) {
-            Task {
+            
+            .task(priority: .userInitiated) {
+                await loadInitialPosts()
+            }
+            .refreshable {
                 await refreshPosts()
             }
-        }
-        .sheet(isPresented: $showComposeSheet) {
-            ComposeView()
+            .onChange(of: type) {_ in
+                Task {
+                    await refreshPosts()
+                }
+            }
+            .sheet(isPresented: $showComposeSheet) {
+                ComposeView()
+            }
         }
     }
 

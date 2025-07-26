@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D62861652E346416003FA5E6 /* Perception in Frameworks */ = {isa = PBXBuildFile; productRef = D62861642E346416003FA5E6 /* Perception */; };
+		D62861672E346416003FA5E6 /* PerceptionCore in Frameworks */ = {isa = PBXBuildFile; productRef = D62861662E346416003FA5E6 /* PerceptionCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		E17721FC2DFB0512005571F6 /* Pachyderm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pachyderm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D62861672E346416003FA5E6 /* PerceptionCore in Frameworks */,
+				D62861652E346416003FA5E6 /* Perception in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = Pachyderm;
 			packageProductDependencies = (
+				D62861642E346416003FA5E6 /* Perception */,
+				D62861662E346416003FA5E6 /* PerceptionCore */,
 			);
 			productName = Pachyderm;
 			productReference = E17721FC2DFB0512005571F6 /* Pachyderm.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = E17721F32DFB0512005571F6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D62861632E346416003FA5E6 /* XCRemoteSwiftPackageReference "swift-perception" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E17721FD2DFB0512005571F6 /* Products */;
 			projectDirPath = "";
@@ -289,10 +301,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ca.bomberfish.Pachyderm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -305,7 +317,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 17.0;
+				XROS_DEPLOYMENT_TARGET = 16.0;
 			};
 			name = Debug;
 		};
@@ -344,10 +356,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ca.bomberfish.Pachyderm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -360,7 +372,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 17.0;
+				XROS_DEPLOYMENT_TARGET = 16.0;
 			};
 			name = Release;
 		};
@@ -386,6 +398,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D62861632E346416003FA5E6 /* XCRemoteSwiftPackageReference "swift-perception" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-perception";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D62861642E346416003FA5E6 /* Perception */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D62861632E346416003FA5E6 /* XCRemoteSwiftPackageReference "swift-perception" */;
+			productName = Perception;
+		};
+		D62861662E346416003FA5E6 /* PerceptionCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D62861632E346416003FA5E6 /* XCRemoteSwiftPackageReference "swift-perception" */;
+			productName = PerceptionCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E17721F42DFB0512005571F6 /* Project object */;
 }

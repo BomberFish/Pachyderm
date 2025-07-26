@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import Perception
 
-@Observable final class MastoAPI: Sendable {
+@Perceptible final class MastoAPI: Sendable {
     private(set) public var instanceDomain: String
     private(set) public var accessToken: String
     

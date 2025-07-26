@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import PerceptionCore
 
 struct PostDetailView: View {
     @Environment(MastoAPI.self) private var api: MastoAPI
     @Binding var post: MastoAPI.Status
     var body: some View {
-        PostCell(post: $post)
+        WithPerceptionTracking {
+            PostCell(post: $post)
+        }
     }
 }
 

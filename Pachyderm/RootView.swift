@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PerceptionCore
 
 struct RootView: View {
     @AppStorage("baseURL") private var instanceDomain: String = ""
@@ -32,65 +33,67 @@ struct MainView: View {
     @Environment(MastoAPI.self) private var api: MastoAPI
     @State private var searchQuery: String = ""
     var body: some View {
-        Group {
-            if #available(iOS 18.0, *) {
-                if #available(iOS 19.0, *) {
-                    TabView {
-                        Tab("Home", systemImage: "square.stack.fill") {
-                            NavigationStack {
-                                TimelineView()
+        WithPerceptionTracking {
+            Group {
+                if #available(iOS 18.0, *) {
+                    if #available(iOS 19.0, *) {
+                        TabView {
+                            Tab("Home", systemImage: "square.stack.fill") {
+                                NavigationStack {
+                                    TimelineView()
+                                }
+                            }
+                            Tab("Notifications", systemImage: "bell") {
+                                NavigationStack {
+                                    NotificationsView()
+                                }
+                            }
+                            Tab("Messages", systemImage: "bubble.left.and.bubble.right") {
+                                NavigationStack {
+                                    MessagesView()
+                                }
+                            }
+                            Tab(role: .search) {
+                                NavigationStack {
+                                    SearchView(query: $searchQuery)
+                                }
                             }
                         }
-                        Tab("Notifications", systemImage: "bell") {
-                            NavigationStack {
-                                NotificationsView()
+                        .searchable(text: $searchQuery, prompt: "Search posts, users, hashtags")
+                        .tabBarMinimizeBehavior(.onScrollDown)
+                        .navigationBarTitleDisplayMode(.large)
+                    } else {
+                        TabView {
+                            Tab("Home", systemImage: "square.stack.fill") {
+                                NavigationStack {
+                                    TimelineView()
+                                }
+                            }
+                            Tab("Notifications", systemImage: "bell") {
+                                NavigationStack {
+                                    NotificationsView()
+                                }
+                            }
+                            Tab("Messages", systemImage: "bubble.left.and.bubble.right") {
+                                NavigationStack {
+                                    MessagesView()
+                                }
+                            }
+                            Tab(role: .search) {
+                                NavigationStack {
+                                    SearchView(query: $searchQuery)
+                                }
                             }
                         }
-                        Tab("Messages", systemImage: "bubble.left.and.bubble.right") {
-                            NavigationStack {
-                                MessagesView()
-                            }
-                        }
-                        Tab(role: .search) {
-                            NavigationStack {
-                                SearchView(query: $searchQuery)
-                            }
-                        }
+                        .searchable(text: $searchQuery, prompt: "Search posts, users, hashtags")
+                        .navigationBarTitleDisplayMode(.large)
                     }
-                    .searchable(text: $searchQuery, prompt: "Search posts, users, hashtags")
-                    .tabBarMinimizeBehavior(.onScrollDown)
-                    .navigationBarTitleDisplayMode(.large)
                 } else {
-                    TabView {
-                        Tab("Home", systemImage: "square.stack.fill") {
-                            NavigationStack {
-                                TimelineView()
-                            }
-                        }
-                        Tab("Notifications", systemImage: "bell") {
-                            NavigationStack {
-                                NotificationsView()
-                            }
-                        }
-                        Tab("Messages", systemImage: "bubble.left.and.bubble.right") {
-                            NavigationStack {
-                                MessagesView()
-                            }
-                        }
-                        Tab(role: .search) {
-                            NavigationStack {
-                                SearchView(query: $searchQuery)
-                            }
-                        }
-                    }
-                    .searchable(text: $searchQuery, prompt: "Search posts, users, hashtags")
-                    .navigationBarTitleDisplayMode(.large)
+                    
                 }
-            } else {
-                
             }
+            .environment(api)
         }
-        .environment(api)
     }
 }
 
