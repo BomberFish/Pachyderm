@@ -49,7 +49,7 @@ struct TimelineView: View {
                             .padding(5)
                             .offset(y:-2)
                     }
-                    .buttonStyle(.glassProminent)
+                    .glassProminentButton()
                     .tint(.accent)
                     .frame(width: AvatarUIScale.regular.rawValue, height: AvatarUIScale.regular.rawValue)
                 }

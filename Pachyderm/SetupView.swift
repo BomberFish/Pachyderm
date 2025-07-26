@@ -44,7 +44,7 @@ struct SetupView: View {
                 }
             }
             .controlSize(.large)
-            .buttonStyle(.glassProminent)
+            .glassProminentButton()
             .disabled(instanceDomain == "")
         }
         .alert("Error", isPresented: $showErrorAlert) {

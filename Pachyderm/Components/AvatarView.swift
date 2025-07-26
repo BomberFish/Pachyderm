@@ -40,7 +40,7 @@ struct AvatarView: View {
                     .fill(.clear)
                     .frame(width: size.rawValue, height: size.rawValue)
                     .controlSize(size == .xs ? .mini : .regular)
-                    .glassEffect(isEnabled: size != .regular)
+                    .glass(isEnabled: size != .regular)
                 ProgressView()
             }
         }
@@ -91,7 +91,7 @@ struct AccountMenu: View {
                             .fill(.clear)
                             .frame(width: AvatarUIScale.regular.rawValue, height: AvatarUIScale.regular.rawValue)
                             .controlSize(.regular)
-                            .glassEffect()
+                            .glass()
                         ProgressView()
                     }
                 }

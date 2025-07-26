@@ -61,7 +61,7 @@ struct ComposeView: View {
                             ds()
                         }
                         .clipShape(Circle())
-                        .buttonStyle(.glassProminent)
+                        .glassProminentButton()
                         .clipShape(Circle())
                     }
                     ToolbarItemGroup(placement: .keyboard) {

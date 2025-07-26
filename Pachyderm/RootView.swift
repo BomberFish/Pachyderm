@@ -32,31 +32,64 @@ struct MainView: View {
     @Environment(MastoAPI.self) private var api: MastoAPI
     @State private var searchQuery: String = ""
     var body: some View {
-        TabView {
-            Tab("Home", systemImage: "square.stack.fill") {
-                NavigationStack {
-                    TimelineView()
+        Group {
+            if #available(iOS 18.0, *) {
+                if #available(iOS 19.0, *) {
+                    TabView {
+                        Tab("Home", systemImage: "square.stack.fill") {
+                            NavigationStack {
+                                TimelineView()
+                            }
+                        }
+                        Tab("Notifications", systemImage: "bell") {
+                            NavigationStack {
+                                NotificationsView()
+                            }
+                        }
+                        Tab("Messages", systemImage: "bubble.left.and.bubble.right") {
+                            NavigationStack {
+                                MessagesView()
+                            }
+                        }
+                        Tab(role: .search) {
+                            NavigationStack {
+                                SearchView(query: $searchQuery)
+                            }
+                        }
+                    }
+                    .searchable(text: $searchQuery, prompt: "Search posts, users, hashtags")
+                    .tabBarMinimizeBehavior(.onScrollDown)
+                    .navigationBarTitleDisplayMode(.large)
+                } else {
+                    TabView {
+                        Tab("Home", systemImage: "square.stack.fill") {
+                            NavigationStack {
+                                TimelineView()
+                            }
+                        }
+                        Tab("Notifications", systemImage: "bell") {
+                            NavigationStack {
+                                NotificationsView()
+                            }
+                        }
+                        Tab("Messages", systemImage: "bubble.left.and.bubble.right") {
+                            NavigationStack {
+                                MessagesView()
+                            }
+                        }
+                        Tab(role: .search) {
+                            NavigationStack {
+                                SearchView(query: $searchQuery)
+                            }
+                        }
+                    }
+                    .searchable(text: $searchQuery, prompt: "Search posts, users, hashtags")
+                    .navigationBarTitleDisplayMode(.large)
                 }
-            }
-            Tab("Notifications", systemImage: "bell") {
-                NavigationStack {
-                    NotificationsView()
-                }
-            }
-            Tab("Messages", systemImage: "bubble.left.and.bubble.right") {
-                NavigationStack {
-                    MessagesView()
-                }
-            }
-            Tab(role: .search) {
-                NavigationStack {
-                    SearchView(query: $searchQuery)
-                }
+            } else {
+                
             }
         }
-        .searchable(text: $searchQuery, prompt: "Search posts, users, hashtags")
-        .tabBarMinimizeBehavior(.onScrollDown)
-        .navigationBarTitleDisplayMode(.large)
         .environment(api)
     }
 }

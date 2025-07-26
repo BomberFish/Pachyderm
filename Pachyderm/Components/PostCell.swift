@@ -71,7 +71,7 @@ struct PostCell: View {
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(.primary)
                 }
-                .buttonStyle(.glass)
+                .glassButton()
                 .controlSize(.large)
             }
             
@@ -131,8 +131,12 @@ struct PostCell: View {
                     }
                 }) {
                     HStack(spacing: 2) {
-                        Image(systemName: "arrow.2.squarepath")
-                            .symbolEffect(.rotate, value: post.reblogged)
+                        if #available(iOS 19.0, *) {
+                            Image(systemName: "arrow.2.squarepath")
+                                .symbolEffect(.rotate, value: post.reblogged)
+                        } else {
+                            Image(systemName: "arrow.2.squarepath")
+                        }
                         if post.reblogsCount > 0 {
                             Text("\(post.reblogsCount)")
                                 .contentTransition(.numericText())

@@ -25,13 +25,22 @@ struct NotificationsView: View {
             .padding(.horizontal)
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Text("Notifications")
-                    .font(.title.weight(.semibold))
-                    .fixedSize()
-                    .padding(.leading, 4)
+            if #available(iOS 19.0, *) {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Text("Notifications")
+                        .font(.title.weight(.semibold))
+                        .fixedSize()
+                        .padding(.leading, 4)
+                }
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Text("Notifications")
+                        .font(.title.weight(.semibold))
+                        .fixedSize()
+                        .padding(.leading, 4)
+                }
             }
-            .sharedBackgroundVisibility(.hidden)
             ToolbarItem(placement: .navigationBarTrailing) {
                 AccountMenu()
                     .frame(width: AvatarUIScale.regular.rawValue, height:  AvatarUIScale.regular.rawValue)
